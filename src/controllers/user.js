@@ -5,7 +5,8 @@ const { body } = require("express-validator");
 const bcrypt = require("bcrypt");
 const { signToken } = require("./../utils/signToken");
 const User = require("../models/user");
-const { param } = require("../routes/users");
+const Appointment = require("../models/appointment");
+
 //environment variables config
 require("dotenv").config();
 
@@ -112,17 +113,54 @@ exports.updateUserProfile = async (req, res) => {
 	}
 };
 
-// // GET Client(s) Routes
-// All patients of doctor ===> ?
+// // GET Patient(s) Routes
+// All Patients of especific doctor
+exports.getDoctorPatients = async (req, res) => {
+	try {
+		if (req.user.type == 2) {
+			res.status(403).send({ error: "شما دسترسی ندارید" });
+		}
+
+		// Change this to allow null
+		const bookedAppointments = await Appointment.find(
+			{ doctorId: req.user._id },
+			function (err) {
+				if (err) {
+					return res.status(404).send();
+				}
+			}
+		);
+
+		const patients = bookedAppointments.map((app) => app.clientId);
+
+		// Assign all users to the user of bookedAppointments
+		const users = await User.find({ _id: { $in: patients } }, function (err) {
+			if (err) {
+				return res.status(404).send();
+			}
+		});
+
+		// Only send appropriate data
+		res.status(200).send(users);
+	} catch (e) {
+		res.status(500).send();
+	}
+};
 
 exports.getAllUsers = async (req, res) => {
 	try {
-		const allUsers = await User.find().map((_res) =>
-			_res.map((_user) => Object.assign(_user, { password: undefined }))
+		// get all users list
+		const allUsers = await User.find();
+
+		// remove password in response
+		const result = allUsers.map((user) =>
+			Object.assign(user, { password: undefined })
 		);
+
 		res.status(200).json({
-			result: allUsers,
+			result: result,
 		});
+		console.log(typeof User.find());
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({
@@ -232,13 +270,6 @@ exports.validate = (method) => {
 				body("username").exists(),
 				body("password").isLength(5).notEmpty(),
 				body("type").isNumeric().notEmpty(),
-				body("profileImage").optional().isString(),
-				body("fullName").optional().isString(),
-				body("sex").optional().isString(),
-				body("phoneNumber").optional().isString(),
-				body("dateOfBirth").optional().isString(),
-				body("doctorInfo").optional().isObject(),
-				body("clientInfo").optional().isObject(),
 			];
 		}
 	}

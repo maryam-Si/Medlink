@@ -33,19 +33,7 @@ const UserSchema = mongoose.Schema({
 	},
 
 	doctorInfo: {
-		workSchedule: {
-			openingTime: String,
-			closingTime: String,
-			lunchBreakStart: String,
-			lunchBreakEnd: String,
-			unavailableDateTimes: [
-				{
-					startDateTime: String,
-					endDateTime: String,
-					modifier: String,
-				},
-			],
-		},
+		workSchedule: [{ day: String, openingTime: String, closingTime: String }],
 		licence: {
 			type: String,
 		},

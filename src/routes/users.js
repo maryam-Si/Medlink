@@ -39,6 +39,12 @@ router.get(
 	UserController.getAllUsers
 );
 
+router.get(
+	"/get-doctor-patients",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getDoctorPatients
+);
+
 router.post(
 	"/add-user",
 	//This will check if the request has a JWT token and if the JWT token is valid
