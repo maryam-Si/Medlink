@@ -32,17 +32,48 @@ router.patch(
 	UserController.updateUserProfile
 );
 
-router.get(
-	"/get-all-users",
+// Update doctor's information
+router.patch(
+	"/profile/doctor-info",
 	passport.authenticate("jwt", { session: false }),
-	adminAuth,
-	UserController.getAllUsers
+	UserController.updateDoctorInfo
 );
 
+// Update client's information
+router.patch(
+	"/profile/client-info",
+	passport.authenticate("jwt", { session: false }),
+	UserController.updateClientInfo
+);
+
+// get all doctors by admin
+router.get(
+	"/get-all-doctors",
+	passport.authenticate("jwt", { session: false }),
+	adminAuth,
+	UserController.getAllDoctors
+);
+
+// get all patients by admin
+router.get(
+	"/get-all-patients",
+	passport.authenticate("jwt", { session: false }),
+	adminAuth,
+	UserController.getAllPatients
+);
+
+// All Patients of especific doctor
 router.get(
 	"/get-doctor-patients",
 	passport.authenticate("jwt", { session: false }),
 	UserController.getDoctorPatients
+);
+
+// All Doctors who visited a patient
+router.get(
+	"/get-patient-doctors",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getPatientDoctors
 );
 
 router.post(

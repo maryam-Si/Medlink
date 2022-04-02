@@ -6,6 +6,8 @@ const bcrypt = require("bcrypt");
 const { signToken } = require("./../utils/signToken");
 const User = require("../models/user");
 const Appointment = require("../models/appointment");
+const DoctorInfo = require("../models/doctorInfo");
+const ClientInfo = require("../models/clientInfo");
 
 //environment variables config
 require("dotenv").config();
@@ -71,8 +73,17 @@ exports.login = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
 	try {
+		const inf =
+			req.user.type === 1
+				? await DoctorInfo.find({ userId: req.user._id })
+				: await ClientInfo.find({ userId: req.user._id });
+
+		console.log(req.user._id);
 		res.status(200).json({
-			result: { user: Object.assign(req.user, { password: undefined }) },
+			result: {
+				user: Object.assign(req.user, { password: undefined }),
+				info: inf,
+			},
 		});
 	} catch (err) {
 		console.log(err);
@@ -91,20 +102,61 @@ exports.updateUserProfile = async (req, res) => {
 			"isAdmin",
 			"createdAt",
 			"type",
+			"sex",
+			"dateOfBirth",
 		];
 		unrequiredFields.forEach((field) => {
 			if (!req.body[field]) {
 				req.body[field] = req.user[field];
 			}
 		});
-
-		Object.keys(req.body).forEach((update) => {
-			req.user[update] = req.body[update];
+		Object.keys(req.body).forEach((field) => {
+			req.user[field] = req.body[field];
 		});
 
 		await req.user.save();
 
-		res.status(201).send(req.user);
+		res.status(201).json({
+			message: "تغییرات با موفقیت اعمال شد.",
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// update doctor's information
+exports.updateDoctorInfo = async (req, res) => {
+	try {
+		const doctor = await DoctorInfo.findOne({ userId: req.user._id });
+		Object.keys(req.body).forEach((field) => {
+			doctor[field] = req.body[field];
+		});
+		await doctor.save();
+		res.status(201).json({
+			message: "تغییرات با موفقیت اعمال شد.",
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// update patient's information
+exports.updateClientInfo = async (req, res) => {
+	try {
+		const patient = await ClientInfo.findOne({ userId: req.user._id });
+		Object.keys(req.body).forEach((field) => {
+			patient[field] = req.body[field];
+		});
+		await patient.save();
+		res.status(201).json({
+			message: "تغییرات با موفقیت اعمال شد.",
+		});
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({
@@ -141,16 +193,51 @@ exports.getDoctorPatients = async (req, res) => {
 		});
 
 		// Only send appropriate data
-		res.status(200).send(users);
+		res.status(200).json({
+			patients: users,
+		});
 	} catch (e) {
 		res.status(500).send();
 	}
 };
 
-exports.getAllUsers = async (req, res) => {
+// All Doctors who visited a patient
+exports.getPatientDoctors = async (req, res) => {
 	try {
-		// get all users list
-		const allUsers = await User.find();
+		const bookedAppointments = await Appointment.find(
+			{ clientId: req.user._id },
+			function (err) {
+				if (err) {
+					return res.status(404).send();
+				}
+			}
+		);
+
+		const doctors = bookedAppointments.map((app) => app.doctorId);
+
+		const users = await User.find({ _id: { $in: doctors } }, function (err) {
+			if (err) {
+				return res.status(404).send();
+			}
+		});
+
+		// Only send appropriate data
+		res.status(200).json({
+			doctors: users,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// get all doctors by admin
+exports.getAllDoctors = async (req, res) => {
+	try {
+		// get all doctors list
+		const allUsers = await User.find({ type: 1 });
 
 		// remove password in response
 		const result = allUsers.map((user) =>
@@ -160,7 +247,6 @@ exports.getAllUsers = async (req, res) => {
 		res.status(200).json({
 			result: result,
 		});
-		console.log(typeof User.find());
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({
@@ -168,8 +254,33 @@ exports.getAllUsers = async (req, res) => {
 		});
 	}
 };
+
+// get all patients by admin
+exports.getAllPatients = async (req, res) => {
+	try {
+		// get all patients list
+		const allUsers = await User.find({ type: 2 });
+
+		// remove password in response
+		const result = allUsers.map((user) =>
+			Object.assign(user, { password: undefined })
+		);
+
+		res.status(200).json({
+			result: result,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// add new patient or doctor by admin
 exports.addUser = async (req, res) => {
 	try {
+		let info;
 		const {
 			username,
 			password,
@@ -204,23 +315,38 @@ exports.addUser = async (req, res) => {
 			dateOfBirth,
 			phoneNumber,
 			address,
-			doctorInfo,
-			clientInfo,
 		});
-		// Protect from malicious account information assignment
-		if (newUser.type == 1) {
-			delete newUser.clientInfo;
-		} else {
-			delete newUser.doctorInfo;
-		}
+
 		//saving the user in database
 		const result = await newUser.save();
+		// Protect from malicious account information assignment
+		if (type == 1) {
+			const newDoctor = new DoctorInfo({
+				_id: new mongoose.Types.ObjectId(),
+				userId: newUser._id,
+				...doctorInfo,
+			});
 
-		if (result) {
+			// saving doctor's info in database
+			info = await newDoctor.save();
+			console.log(await newDoctor.save());
+		} else {
+			const newPatient = new ClientInfo({
+				_id: new mongoose.Types.ObjectId(),
+				userId: newUser._id,
+				...clientInfo,
+			});
+
+			// saving patient's info in database
+			info = await newPatient.save();
+		}
+
+		if (result && info) {
 			res.status(201).json({
 				message: "کاربر جدید با موفقیت ثبت شد",
 				result: {
 					user: Object.assign(result, { password: undefined }),
+					Info: info,
 				},
 			});
 			return;
@@ -235,6 +361,7 @@ exports.addUser = async (req, res) => {
 	}
 };
 
+// delete user by admin
 exports.deleteUser = async (req, res) => {
 	try {
 		const id = req.params.id;
