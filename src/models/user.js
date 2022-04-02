@@ -5,12 +5,13 @@ const mongoose = require("mongoose");
 const UserSchema = mongoose.Schema({
 	_id: mongoose.Schema.Types.ObjectId,
 
-	username: { type: String, required: true },
+	username: { type: String, required: true }, //national code
 	password: { type: String, required: true },
 	isAdmin: { type: Boolean, required: true },
 	createdAt: { type: String, required: true },
 
-	fullName: { type: String },
+	firstName: { type: String, required: true },
+	lastName: { type: String, required: true },
 	type: { type: Number }, //1=doctor  2=patient
 
 	profileImage: {
@@ -30,75 +31,6 @@ const UserSchema = mongoose.Schema({
 	},
 	address: {
 		type: String,
-	},
-
-	doctorInfo: {
-		workSchedule: [{ day: String, openingTime: String, closingTime: String }],
-		licence: {
-			type: String,
-		},
-
-		specialtyField: {
-			type: String,
-
-			trim: true,
-		},
-		education: [
-			{
-				type: String,
-			},
-		],
-		yearsExperience: {
-			type: Number,
-		},
-	},
-	clientInfo: {
-		weight: {
-			type: Number,
-		},
-		medicalHistory: [
-			{
-				_id: {
-					type: mongoose.Schema.Types.ObjectId,
-					index: true,
-					auto: true,
-				},
-				startDate: {
-					type: String, // Date
-				},
-				condition: {
-					type: String,
-
-					trim: true,
-				},
-				notes: {
-					type: String,
-
-					trim: true,
-				},
-			},
-		],
-
-		medication: [
-			{
-				_id: {
-					type: mongoose.Schema.Types.ObjectId,
-					index: true,
-					auto: true,
-				},
-				name: {
-					type: String,
-					trim: true,
-				},
-				dosage: {
-					type: Number,
-				},
-			},
-		],
-		bloodType: {
-			type: String,
-			enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
-		},
 	},
 });
 
