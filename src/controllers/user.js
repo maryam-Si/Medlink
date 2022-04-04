@@ -24,6 +24,8 @@ exports.createFirstAdmin = async (req, res, next) => {
 			password: hashedPassword,
 			isAdmin: true,
 			createdAt: new Date().toISOString(),
+			firstName:'admin',
+			lastName:'admin'
 		});
 		const result = await newUser.save();
 		if (result) {
@@ -95,6 +97,7 @@ exports.getUserProfile = async (req, res) => {
 
 exports.updateUserProfile = async (req, res) => {
 	try {
+		console.log(req.user);
 		// Unrequire list of fields if not provided
 		const unrequiredFields = [
 			"username",
@@ -297,6 +300,8 @@ exports.addUser = async (req, res) => {
 		const findUser = await User.findOne({ username });
 		const salt = bcrypt.genSaltSync(10);
 		const hashedPassword = bcrypt.hashSync(password, salt);
+
+
 		if (findUser) {
 			res.status(400).json({ message: "این نام کاربری قبلا ثبت شده است." });
 			return;
