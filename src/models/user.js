@@ -2,6 +2,7 @@
 
 const mongoose = require("mongoose");
 
+// Schemas define the structure of your document
 const UserSchema = mongoose.Schema({
 	_id: mongoose.Schema.Types.ObjectId,
 
@@ -33,5 +34,7 @@ const UserSchema = mongoose.Schema({
 		type: String,
 	},
 });
-
+// To use our schema definition, we need to convert our UserSchema into a Model we can work with.
 module.exports = mongoose.model("User", UserSchema);
+
+// Models are fancy constructors compiled from Schema definitions. An instance of a model is called a document.

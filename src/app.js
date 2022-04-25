@@ -1,10 +1,12 @@
 /** @format */
 
+// Express. js is a framework for Node. js.
+//  It is used for designing and building web applications quickly and easily.
 const express = require("express");
 
 //  mongodb object modeling for node.js
 const mongoose = require("mongoose");
-
+const socket = require("socket.io");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const routes = require("./routes");
@@ -44,6 +46,28 @@ app.use(express.json());
 app.use("/v1", routes);
 
 // start the Express server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
 	console.log(`server started at http://localhost:${PORT}`);
+});
+
+const io = socket(server, {
+	cors: {
+		origin: "http://localhost:3000",
+		credentials: true,
+	},
+});
+
+global.onlineUsers = new Map();
+io.on("connection", (socket) => {
+	global.chatSocket = socket;
+	socket.on("add-user", (userId) => {
+		onlineUsers.set(userId, socket.id);
+	});
+
+	socket.on("send-msg", (data) => {
+		const sendUserSocket = onlineUsers.get(data.to);
+		if (sendUserSocket) {
+			socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+		}
+	});
 });

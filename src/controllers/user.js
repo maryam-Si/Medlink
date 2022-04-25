@@ -8,6 +8,7 @@ const User = require("../models/user");
 const Appointment = require("../models/appointment");
 const DoctorInfo = require("../models/doctorInfo");
 const ClientInfo = require("../models/clientInfo");
+const MedicalRecord = require("../models/medicalRecord");
 
 //environment variables config
 require("dotenv").config();
@@ -101,7 +102,6 @@ exports.updateUserProfile = async (req, res) => {
 		// Unrequire list of fields if not provided
 		const unrequiredFields = [
 			"username",
-			"password",
 			"isAdmin",
 			"createdAt",
 			"type",
@@ -288,7 +288,8 @@ exports.addUser = async (req, res) => {
 			username,
 			password,
 			type,
-			fullName,
+			firstName,
+			lastName,
 			profileImage,
 			sex,
 			dateOfBirth,
@@ -313,7 +314,8 @@ exports.addUser = async (req, res) => {
 			password: hashedPassword,
 			isAdmin: false,
 			createdAt: new Date().toISOString(),
-			fullName,
+			firstName,
+			lastName,
 			type,
 			profileImage,
 			sex,
