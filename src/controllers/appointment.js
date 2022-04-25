@@ -3,7 +3,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
 const Appointment = require("../models/appointment");
-
 // // get Doctor's times
 exports.getDoctorTimes = async (req, res) => {
 	try {
@@ -32,7 +31,7 @@ exports.getAppointments = async (req, res) => {
 				? await Appointment.find({ doctorId: req.params.id })
 				: await Appointment.find({ clientId: req.params.id });
 
-		const getAppointments = async () => {
+		const getAllAppointments = async () => {
 			let result;
 			if (req.user.type === 2) {
 				result = Appointments.map(async (appointment) => {
@@ -57,7 +56,7 @@ exports.getAppointments = async (req, res) => {
 		};
 
 		if (Appointments.length > 0) {
-			const awaitedAppointments = await getAppointments();
+			const awaitedAppointments = await getAllAppointments();
 
 			res.status(200).json({ result: awaitedAppointments });
 		} else {
@@ -82,7 +81,6 @@ exports.createAppointment = async (req, res) => {
 			date,
 			doctorId,
 			clientId,
-			status: "pending",
 			createdAt: new Date().toISOString(),
 		});
 
@@ -104,5 +102,45 @@ exports.createAppointment = async (req, res) => {
 		res.status(500).json({
 			error: err,
 		});
+	}
+};
+
+exports.getAppointmentsByAdmin = async (req, res) => {
+	try {
+		const appointments = await Appointment.find({});
+		if (appointments.length > 0) {
+			res.status(200).json({ result: appointments });
+		} else {
+			res.status(404).send({ error: "no Appointments found" });
+		}
+	} catch (err) {
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+exports.cancelAppointment = async (req, res) => {
+	try {
+		const findAppointment = await Appointment.findOne({ _id: req.params.id });
+		if (!findAppointment) {
+			res.status(404).json({ message: "نوبت یافت نشد." });
+		}
+
+		const currentTime = moment();
+		const oneDayAhead = currentTime.add(1, "days");
+		const lessThanOneDayVar = oneDayAhead.isAfter(sessionStartTime);
+
+		if (lessThanOneDayVar) {
+			throw new Error("امکان کنسل کردن نوبت بعد از ۲۴ ساعت وجود ندارد.");
+		}
+
+		await findAppointment.delete();
+
+		res.status(200).json({
+			message: "نوبت کنسل شد.",
+		});
+	} catch (err) {
+		res.staus(500).json({ error: err });
 	}
 };
