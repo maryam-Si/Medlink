@@ -2,10 +2,13 @@
 
 const router = require("express").Router();
 const path = require("path");
+
 //admin routers
 router.use("/users", require("./users.js"));
 
 router.use("/appointments", require("./appointments.js"));
+
+router.use("/messages", require("./messages.js"));
 
 //file uploads
 router.get("/image/:filename", (req, res) => {
