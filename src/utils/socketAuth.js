@@ -7,6 +7,7 @@
 
 const jwt = require("jsonwebtoken");
 const { PASSPORT_SECRET_KEY } = process.env;
+
 module.exports.socketAuth = function (socket, next) {
 	if (socket.handshake.query && socket.handshake.query.token) {
 		jwt.verify(

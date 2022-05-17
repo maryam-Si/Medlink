@@ -1,13 +1,14 @@
 /** @format */
 
-const { getMessages } = require("../controllers/message");
+const { createConversation } = require("../controllers/conversation");
+
 const router = require("express").Router();
 const passport = require("passport");
 
-router.get(
-  "/:conversationId",
+router.post(
+  "/create",
   passport.authenticate("jwt", { session: false }),
-  getMessages
+  createConversation
 );
 
 module.exports = router;

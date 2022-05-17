@@ -13,6 +13,7 @@ const routes = require("./routes");
 const { createServer } = require("http");
 const { socketAuth } = require("./utils/socketAuth");
 const { socket } = require("./controllers/socket");
+const cors = require("cors");
 //create express app
 const app = express();
 
@@ -38,6 +39,8 @@ mongoose.connect(
 //use to avoid deprecation warnings from the MongoDB driver.
 mongoose.set("useCreateIndex", true);
 
+//enable cors
+app.use(cors());
 //middleware
 app.use(helmet());
 app.use(morgan("tiny"));
@@ -49,8 +52,17 @@ app.use("/v1", routes);
 
 //create socket io connection
 const httpServer = createServer();
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+
 io.use(socketAuth).on("connection", socket);
+
+//store to global
+global.io = io;
 
 //start socket io app
 httpServer.listen(SOCKET_PORT, () => {
