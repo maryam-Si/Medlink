@@ -9,7 +9,7 @@ const MedicalRecord = require("../models/medicalRecord");
 // add prescription for patient
 exports.addToMedicalRecord = async (req, res) => {
 	try {
-		const { patientId, description, items } = req.body;
+		const { patientId, prescription } = req.body;
 		const isDoctorPatient = await Appointment.findOne({
 			doctorId: req.user._id,
 			clientId: patientId,
@@ -21,9 +21,8 @@ exports.addToMedicalRecord = async (req, res) => {
 			_id: new mongoose.Types.ObjectId(),
 			patientId,
 			doctorId: req.user._id,
-
-			description,
-			items: { _id: new mongoose.Types.ObjectId(), ...items },
+			prescription,
+			createdAt: new Date().toISOString(),
 		});
 		const saveRecord = await newRecord.save();
 		if (saveRecord) {
@@ -37,12 +36,15 @@ exports.addToMedicalRecord = async (req, res) => {
 // get medical history of patient
 exports.getMedicalRecords = async (req, res) => {
 	try {
-		const records = await MedicalRecord.find({
-			userId: req.params.id,
-		});
+		const records =
+			req.user.type == 1
+				? await MedicalRecord.find({ doctorId: req.user._id })
+				: await MedicalRecord.find({ clientId: req.user._id });
+
 		if (!records) {
 			res.status(404).json({ error: "هیچ اطلاعاتی ثبت نشده است." });
 		}
+		console.log(records);
 		res.status(200).json({
 			result: records,
 		});

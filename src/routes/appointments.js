@@ -13,8 +13,8 @@ router.get(
 	passport.authenticate("jwt", { session: false }),
 	AppointmentController.getAppointments
 );
-// get all appointments
 
+// get all appointments by admin
 router.get(
 	"/get-all-appointments",
 	passport.authenticate("jwt", { session: false }),
@@ -29,8 +29,14 @@ router.get(
 	AppointmentController.getDoctorTimes
 );
 
-// create appointment
+// get booked appointments in a day
+router.get(
+	"/get-booked-appointments/:doctorId/:date",
+	passport.authenticate("jwt", { session: false }),
+	AppointmentController.getBookedAppointments
+);
 
+// create appointment
 router.post(
 	"/create-appointment",
 	passport.authenticate("jwt", { session: false }),

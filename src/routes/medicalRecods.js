@@ -17,3 +17,5 @@ router.get(
 	passport.authenticate("jwt", { session: false }),
 	MedicalRecordController.getMedicalRecords
 );
+
+module.exports = router;

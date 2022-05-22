@@ -9,27 +9,16 @@ const ClientInfo = mongoose.Schema({
 		type: String,
 	},
 	height: { type: String },
-
-	pastMedicalHistory: [{ type: String }],
-
-	medicationHistory: [
-		{
-			name: {
-				type: String,
-				trim: true,
-			},
-			dosage: {
-				type: Number,
-			},
-		},
-	],
-	medicationAllergies: [{ type: String }],
-	surgeries: [{ type: String }],
-
 	bloodType: {
 		type: String,
 		enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
 	},
+	specialDiseases: [{ type: String }],
+
+	currentMedications: [{ type: String }],
+
+	medicationAllergies: [{ type: String }],
+	surgeries: [{ type: String }],
 });
 
 module.exports = mongoose.model("ClientInfo", ClientInfo);
