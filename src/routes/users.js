@@ -62,14 +62,14 @@ router.get(
 	UserController.getAllPatients
 );
 
-// All Patients of especific doctor
+// All Patients of specific doctor
 router.get(
 	"/get-doctor-patients",
 	passport.authenticate("jwt", { session: false }),
 	UserController.getDoctorPatients
 );
 
-// All Doctors who visited a patient
+// All Doctors who are visited by a patient
 router.get(
 	"/get-patient-doctors",
 	passport.authenticate("jwt", { session: false }),

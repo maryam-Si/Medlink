@@ -11,7 +11,7 @@ router.post(
 	MedicalRecordController.addToMedicalRecord
 );
 
-// get all prescriptions which this doctor has written
+// get all records
 router.get(
 	"/get-medical-records",
 	passport.authenticate("jwt", { session: false }),

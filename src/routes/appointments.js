@@ -9,7 +9,7 @@ const adminAuth = require("../middlewares/adminAuth");
 
 // get all doctor's appointments or patient's appointments
 router.get(
-	"/get-appointments/:id",
+	"/get-appointments",
 	passport.authenticate("jwt", { session: false }),
 	AppointmentController.getAppointments
 );

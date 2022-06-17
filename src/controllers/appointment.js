@@ -55,8 +55,8 @@ exports.getAppointments = async (req, res) => {
 	try {
 		const Appointments =
 			req.user.type == 1
-				? await Appointment.find({ doctorId: req.params.id })
-				: await Appointment.find({ clientId: req.params.id });
+				? await Appointment.find({ doctorId: req.user._id })
+				: await Appointment.find({ clientId: req.user._id });
 
 		const getAllAppointments = async () => {
 			let result;
@@ -66,7 +66,11 @@ exports.getAppointments = async (req, res) => {
 						_id: appointment.doctorId,
 					});
 					const returnedAppointment = { ...appointment._doc };
-					returnedAppointment.user = { ...returnedDoctor._doc };
+					returnedAppointment.doctorInfo = {
+						...returnedDoctor._doc,
+						password: undefined,
+						username: undefined,
+					};
 					return returnedAppointment;
 				});
 			} else {
@@ -75,7 +79,11 @@ exports.getAppointments = async (req, res) => {
 						_id: appointment.clientId,
 					});
 					const returnedAppointment = { ...appointment._doc };
-					returnedAppointment.user = { ...returnedClient._doc };
+					returnedAppointment.patientInfo = {
+						...returnedClient._doc,
+						password: undefined,
+						username: undefined,
+					};
 					return returnedAppointment;
 				});
 			}
