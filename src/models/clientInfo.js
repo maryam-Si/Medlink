@@ -13,12 +13,12 @@ const ClientInfo = mongoose.Schema({
 		type: String,
 		enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
 	},
-	specialDiseases: [{ type: String }],
+	specialDiseases: [String],
 
-	currentMedications: [{ type: String }],
+	currentMedications: [String],
 
-	medicationAllergies: [{ type: String }],
-	surgeries: [{ type: String }],
+	medicationAllergies: [String],
+	surgeries: [String],
 });
 
 module.exports = mongoose.model("ClientInfo", ClientInfo);
