@@ -46,13 +46,6 @@ router.patch(
 	UserController.updateClientInfo
 );
 
-// get all doctors
-router.get(
-	"/get-all-doctors",
-	passport.authenticate("jwt", { session: false }),
-	UserController.getAllDoctors
-);
-
 // get all patients by admin
 router.get(
 	"/get-all-patients",
@@ -68,11 +61,32 @@ router.get(
 	UserController.getDoctorPatients
 );
 
+// get patient by id
+router.get(
+	"/get-patient/:id",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getPatientById
+);
+
 // All Doctors who are visited by a patient
 router.get(
 	"/get-patient-doctors",
 	passport.authenticate("jwt", { session: false }),
 	UserController.getPatientDoctors
+);
+
+// get all doctors
+router.get(
+	"/get-all-doctors",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getAllDoctors
+);
+
+// get doctor by id
+router.get(
+	"/get-doctor/:id",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getDoctorById
 );
 
 router.post(

@@ -257,6 +257,26 @@ exports.getAllDoctors = async (req, res) => {
 	}
 };
 
+// get doctor by id
+exports.getDoctorById = async (req, res) => {
+	try {
+		// get all doctors list
+		const doctor = await User.findById({ _id: req.params.id });
+
+		// remove password in response
+		const result = Object.assign(doctor, { password: undefined });
+
+		res.status(200).json({
+			doctor: result,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
 // get all patients by admin
 exports.getAllPatients = async (req, res) => {
 	try {
@@ -279,6 +299,25 @@ exports.getAllPatients = async (req, res) => {
 	}
 };
 
+// get doctor by id
+exports.getPatientById = async (req, res) => {
+	try {
+		// get all doctors list
+		const patient = await User.findById({ _id: req.params.id });
+
+		// remove password in response
+		const result = Object.assign(patient, { password: undefined });
+
+		res.status(200).json({
+			patient: result,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
 // add new patient or doctor by admin
 exports.addUser = async (req, res) => {
 	try {
