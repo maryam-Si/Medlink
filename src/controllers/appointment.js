@@ -173,3 +173,24 @@ exports.cancelAppointment = async (req, res) => {
 		});
 	}
 };
+
+// check if a patient have had appointments or not with specific doctor
+exports.hasAppointmentBefore = async (req, res) => {
+	try {
+		const appointments = await Appointment.find({
+			clientId: req.user._id,
+			doctorId: req.params.doctorId,
+		});
+
+		if (appointments.length > 0) {
+			res.status(200).json({ hasAppointment: true });
+		} else {
+			res.status(404).json({ hasAppointment: false });
+		}
+	} catch (e) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};

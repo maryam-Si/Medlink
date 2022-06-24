@@ -50,4 +50,10 @@ router.delete(
 	AppointmentController.cancelAppointment
 );
 
+// check if a patient have had appointments or not
+router.get(
+	"/check-appointment-status/:doctorId/",
+	passport.authenticate("jwt", { session: false }),
+	AppointmentController.hasAppointmentBefore
+);
 module.exports = router;
