@@ -261,13 +261,15 @@ exports.getAllDoctors = async (req, res) => {
 exports.getDoctorById = async (req, res) => {
 	try {
 		// get all doctors list
-		const doctor = await User.findById({ _id: req.params.id });
+		const user = await User.findById({ _id: req.params.id });
+		const doctorInfo = await DoctorInfo.findOne({ userId: req.params.id });
+		const d = Object.assign(user, { password: undefined });
+		const d1 = Object.assign(doctorInfo, { userId: undefined, _id: undefined });
 
-		// remove password in response
-		const result = Object.assign(doctor, { password: undefined });
+		const doctor = { ...d._doc, ...d1._doc };
 
 		res.status(200).json({
-			doctor: result,
+			doctor,
 		});
 	} catch (err) {
 		console.log(err);
@@ -299,17 +301,21 @@ exports.getAllPatients = async (req, res) => {
 	}
 };
 
-// get doctor by id
+// get patient by id
 exports.getPatientById = async (req, res) => {
 	try {
-		// get all doctors list
-		const patient = await User.findById({ _id: req.params.id });
+		const user = await User.findById({ _id: req.params.id });
+		const patientInfo = await ClientInfo.findOne({ userId: req.params.id });
+		const d = Object.assign(user, { password: undefined });
+		const d1 = Object.assign(patientInfo, {
+			userId: undefined,
+			_id: undefined,
+		});
 
-		// remove password in response
-		const result = Object.assign(patient, { password: undefined });
+		const patient = { ...d._doc, ...d1._doc };
 
 		res.status(200).json({
-			patient: result,
+			patient,
 		});
 	} catch (err) {
 		console.log(err);
