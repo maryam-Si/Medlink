@@ -235,7 +235,7 @@ exports.getPatientDoctors = async (req, res) => {
 	}
 };
 
-// get all doctors by admin
+// get all doctors
 exports.getAllDoctors = async (req, res) => {
 	try {
 		// get all doctors list

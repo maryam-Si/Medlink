@@ -46,11 +46,10 @@ router.patch(
 	UserController.updateClientInfo
 );
 
-// get all doctors by admin
+// get all doctors
 router.get(
 	"/get-all-doctors",
 	passport.authenticate("jwt", { session: false }),
-	adminAuth,
 	UserController.getAllDoctors
 );
 
