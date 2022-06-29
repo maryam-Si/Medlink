@@ -11,6 +11,8 @@ router.use("/appointments", require("./appointments.js"));
 router.use("/messages", require("./messages.js"));
 router.use("/conversations", require("./conversation"));
 router.use("/medicalRecords", require("./medicalRecods"));
+router.use("/doctors", require("./doctors"));
+router.use("/patients", require("./patients"));
 
 //file uploads
 router.get("/image/:filename", (req, res) => {

@@ -28,12 +28,12 @@ const { PORT, MONGO_DB_LOCAL_URI: dburl, SOCKET_PORT } = process.env;
 
 //connect to Database
 mongoose.connect(
-  dburl,
-  { useNewUrlParser: true, useUnifiedTopology: true },
-  (err) => {
-    if (err) console.log(err);
-    else console.log("DATA CENTER - Connected");
-  }
+	dburl,
+	{ useNewUrlParser: true, useUnifiedTopology: true },
+	(err) => {
+		if (err) console.log(err);
+		else console.log("DATA CENTER - Connected");
+	}
 );
 
 //use to avoid deprecation warnings from the MongoDB driver.
@@ -53,10 +53,10 @@ app.use("/v1", routes);
 //create socket io connection
 const httpServer = createServer();
 const io = new Server(httpServer, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-  },
+	cors: {
+		origin: "http://localhost:3000",
+		methods: ["GET", "POST"],
+	},
 });
 
 io.use(socketAuth).on("connection", socket);
@@ -66,10 +66,10 @@ global.io = io;
 
 //start socket io app
 httpServer.listen(SOCKET_PORT, () => {
-  console.log(`Socket.IO server running at http://localhost:${SOCKET_PORT}`);
+	console.log(`Socket.IO server running at http://localhost:${SOCKET_PORT}`);
 });
 
 // start the Express server
 app.listen(PORT, () => {
-  console.log(`server started at http://localhost:${PORT}`);
+	console.log(`server started at http://localhost:${PORT}`);
 });
