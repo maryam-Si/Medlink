@@ -18,7 +18,7 @@ passport.use(
 		// return a full user if the validation succeeds, or a null if it fails
 		function (jwtPayload, done) {
 			const doctor = Doctor.findById(jwtPayload.sub);
-			const patient = Doctor.findById(jwtPayload.sub);
+			const patient = Patient.findById(jwtPayload.sub);
 			if (doctor) {
 				return doctor
 					.then((doctor) => {
@@ -27,7 +27,7 @@ passport.use(
 					.catch((err) => {
 						return done(null, false);
 					});
-			} else {
+			} else if (patient) {
 				return patient
 					.then((patient) => {
 						return done(null, patient);
