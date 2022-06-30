@@ -18,4 +18,39 @@ router.post(
 	// errorInvalid,
 	DoctorController.register
 );
+
+// Update doctor's profile
+router.patch(
+	"/update-doctor",
+	passport.authenticate("jwt", { session: false }),
+	DoctorController.updateDoctor
+);
+
+//All Doctors who are visited by a patient
+// router.get(
+// 	"/get-patient-doctors",
+// 	passport.authenticate("jwt", { session: false }),
+// 	DoctorController.getPatientDoctors
+// );
+
+// get all doctors
+router.get(
+	"/get-all-doctors",
+	passport.authenticate("jwt", { session: false }),
+	DoctorController.getAllDoctors
+);
+
+// // get doctor by id
+router.get(
+	"/get-doctor/:id",
+	passport.authenticate("jwt", { session: false }),
+	DoctorController.getDoctorById
+);
+
+router.delete(
+	"/delete-doctor/:id",
+	passport.authenticate("jwt", { session: false }),
+	DoctorController.deleteDoctor
+);
+
 module.exports = router;

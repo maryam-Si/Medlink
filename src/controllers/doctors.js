@@ -91,3 +91,87 @@ exports.register = async (req, res) => {
 		});
 	}
 };
+
+exports.updateDoctor = async (req, res) => {
+	try {
+		console.log(req.user);
+
+		// Unrequire list of fields if not provided
+		Object.keys(req.body).forEach((field) => {
+			req.user[field] = req.body[field];
+		});
+
+		const result = await req.user.save();
+		if (result) {
+			res.status(201).json({
+				message: "تغییرات با موفقیت اعمال شد.",
+			});
+		}
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// get doctor by id
+exports.getDoctorById = async (req, res) => {
+	try {
+		const doctor = await Doctor.findById({ _id: req.params.id });
+
+		res.status(200).json({
+			doctor,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// get all doctors
+exports.getAllDoctors = async (req, res) => {
+	try {
+		// get all doctors list
+		const allDoctors = await Doctor.find({});
+
+		// remove password in response
+		const result = allDoctors.map((doctor) =>
+			Object.assign(doctor, { password: undefined })
+		);
+
+		res.status(200).json({
+			result: result,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// delete user
+exports.deleteDoctor = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const findDoctor = await Doctor.findById(id);
+		if (!findDoctor) {
+			res.status(400).json({ message: "کاربر یافت نشد" });
+			return;
+		}
+
+		await findDoctor.delete();
+
+		res.status(200).json({
+			message: "کاربر با موفقیت حذف شد",
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};

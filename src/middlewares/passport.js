@@ -4,7 +4,8 @@ const passport = require("passport");
 const passportJWT = require("passport-jwt");
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
-const User = require("./../models/user");
+const Doctor = require("./../models/doctor");
+const Patient = require("./../models/patient");
 require("dotenv").config();
 const { PASSPORT_SECRET_KEY } = process.env;
 passport.use(
@@ -16,13 +17,25 @@ passport.use(
 		},
 		// return a full user if the validation succeeds, or a null if it fails
 		function (jwtPayload, done) {
-			return User.findById(jwtPayload.sub)
-				.then((user) => {
-					return done(null, user);
-				})
-				.catch((err) => {
-					return done(null, false);
-				});
+			const doctor = Doctor.findById(jwtPayload.sub);
+			const patient = Doctor.findById(jwtPayload.sub);
+			if (doctor) {
+				return doctor
+					.then((doctor) => {
+						return done(null, doctor);
+					})
+					.catch((err) => {
+						return done(null, false);
+					});
+			} else {
+				return patient
+					.then((patient) => {
+						return done(null, patient);
+					})
+					.catch((err) => {
+						return done(null, false);
+					});
+			}
 		}
 	)
 );
