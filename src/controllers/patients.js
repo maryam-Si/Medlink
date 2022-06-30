@@ -66,8 +66,6 @@ exports.register = async (req, res) => {
 				patient: Object.assign(result, { password: undefined }),
 			});
 		}
-
-		throw new Error("خطایی رخ داد");
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({
@@ -172,8 +170,7 @@ exports.deletePatient = async (req, res) => {
 			res.status(400).json({ message: "کاربر یافت نشد" });
 			return;
 		}
-
-		await findPatient.delete();
+		await Patient.deleteOne({ _id: id });
 
 		res.status(200).json({
 			message: "کاربر با موفقیت حذف شد",
