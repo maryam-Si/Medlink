@@ -11,7 +11,7 @@ const DoctorSchema = mongoose.Schema({
 	firstName: { type: String, required: true },
 	lastName: { type: String, required: true },
 	medicalCode: { type: String, required: true },
-	speciality: { type: String, required: true },
+	speciality: [String, required],
 	WorkSchedule: {
 		activeDays: [
 			{ day: String, start: String, end: String, duration: String }, //duration->minutes
@@ -37,6 +37,9 @@ const DoctorSchema = mongoose.Schema({
 		trim: true,
 	},
 	address: {
+		type: String,
+	},
+	city: {
 		type: String,
 	},
 	createdAt: { type: String, required: true },

@@ -45,6 +45,7 @@ exports.register = async (req, res) => {
 			dateOfBirth,
 			phoneNumber,
 			address,
+			city,
 		} = req.body;
 		const findDoctor = await Doctor.findOne({ username });
 		const salt = bcrypt.genSaltSync(10);
@@ -70,6 +71,7 @@ exports.register = async (req, res) => {
 			medicalCode,
 			speciality,
 			WorkSchedule,
+			city,
 		});
 
 		//saving the user in database
