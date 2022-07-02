@@ -11,7 +11,7 @@ const DoctorSchema = mongoose.Schema({
 	firstName: { type: String, required: true },
 	lastName: { type: String, required: true },
 	medicalCode: { type: String, required: true },
-	speciality: [String, required],
+	speciality: [{ type: String, required: true }],
 	WorkSchedule: {
 		activeDays: [
 			{ day: String, start: String, end: String, duration: String }, //duration->minutes
