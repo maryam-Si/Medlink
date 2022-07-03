@@ -10,106 +10,106 @@ const DoctorInfo = require("../models/doctorInfo");
 const ClientInfo = require("../models/clientInfo");
 
 exports.registerDoctor = async (req, res) => {
-	try {
-		const {
-			username,
-			password,
-			firstName,
-			lastName,
-			sex,
-			dateOfBirth,
-			phoneNumber,
-			profileImage,
-			address,
-			medicalCode,
-			speciality,
-			WorkSchedule,
-			city,
-			yearsExperience,
-		} = req.body;
-		const findUser = await User.findOne({ username });
-		const salt = bcrypt.genSaltSync(10);
-		const hashedPassword = bcrypt.hashSync(password, salt);
+  try {
+    const {
+      username,
+      password,
+      firstName,
+      lastName,
+      sex,
+      dateOfBirth,
+      phoneNumber,
+      profileImage,
+      address,
+      medicalCode,
+      speciality,
+      WorkSchedule,
+      city,
+      yearsExperience,
+    } = req.body;
+    const findUser = await User.findOne({ username });
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
 
-		if (findUser) {
-			res.status(400).json({ message: "این نام کاربری قبلا ثبت شده است." });
-			return;
-		}
-		//save new user
-		const newUser = new User({
-			_id: new mongoose.Types.ObjectId(),
-			username,
-			password: hashedPassword,
-			firstName,
-			lastName,
-			type: 1,
-			profileImage,
-			sex,
-			dateOfBirth,
-			phoneNumber,
-			address,
-		});
-		//saving the user in database
-		const newUserAdded = await newUser.save();
+    if (findUser) {
+      res.status(400).json({ message: "این نام کاربری قبلا ثبت شده است." });
+      return;
+    }
+    //save new user
+    const newUser = new User({
+      _id: new mongoose.Types.ObjectId(),
+      username,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      type: 1,
+      profileImage,
+      sex,
+      dateOfBirth,
+      phoneNumber,
+      address,
+    });
+    //saving the user in database
+    const newUserAdded = await newUser.save();
 
-		const newDoctorInfo = new DoctorInfo({
-			_id: new mongoose.Types.ObjectId(),
-			userId: newUser._id,
-			medicalCode,
-			speciality,
-			WorkSchedule,
-			city,
-			yearsExperience,
-		});
+    const newDoctorInfo = new DoctorInfo({
+      _id: new mongoose.Types.ObjectId(),
+      userId: newUser._id,
+      medicalCode,
+      speciality,
+      WorkSchedule,
+      city,
+      yearsExperience,
+    });
 
-		//saving the user in database
-		const newDoctorInfoAdded = await newDoctorInfo.save();
+    //saving the user in database
+    const newDoctorInfoAdded = await newDoctorInfo.save();
 
-		if (newUserAdded && newDoctorInfoAdded) {
-			res.status(201).json({
-				message: " ثبت‌نام با موفقیت انجام شد.",
-				user: Object.assign(newUserAdded, { password: undefined }),
-				doctorInfo: newDoctorInfoAdded,
-			});
-			return;
-		}
+    if (newUserAdded && newDoctorInfoAdded) {
+      res.status(201).json({
+        message: " ثبت‌نام با موفقیت انجام شد.",
+        user: Object.assign(newUserAdded, { password: undefined }),
+        doctorInfo: newDoctorInfoAdded,
+      });
+      return;
+    }
 
-		throw new Error("خطایی رخ داد");
-	} catch (err) {
-		console.log(err);
-		res.status(500).json({
-			error: err,
-		});
-	}
+    throw new Error("خطایی رخ داد");
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err,
+    });
+  }
 };
 
 exports.login = async (req, res) => {
-	try {
-		const { username, password } = req.body;
-		const findUser = await User.findOne({ username });
-		if (!findUser) {
-			res.status(400).json({ message: "نام کاربری  اشتباه است" });
-			return;
-		}
-		const passwordMatch = await bcrypt.compare(password, findUser.password);
-		if (passwordMatch) {
-			res.status(200).json({
-				result: {
-					token: signToken(findUser),
-					user: Object.assign(findUser, { password: undefined }),
-				},
-			});
-			return;
-		}
-		res.status(400).json({ message: " کلمه عبور اشتباه است" });
+  try {
+    const { username, password } = req.body;
+    const findUser = await User.findOne({ username });
+    if (!findUser) {
+      res.status(400).json({ message: "نام کاربری  اشتباه است" });
+      return;
+    }
+    const passwordMatch = await bcrypt.compare(password, findUser.password);
+    if (passwordMatch) {
+      res.status(200).json({
+        result: {
+          token: signToken(findUser),
+          user: Object.assign(findUser, { password: undefined }),
+        },
+      });
+      return;
+    }
+    res.status(400).json({ message: " کلمه عبور اشتباه است" });
 
-		//create token for  user
-		// const token = signToken(adminUser);
-	} catch (err) {
-		res.status(500).json({
-			error: err,
-		});
-	}
+    //create token for  user
+    // const token = signToken(adminUser);
+  } catch (err) {
+    res.status(500).json({
+      error: err,
+    });
+  }
 };
 
 // exports.getUserProfile = async (req, res) => {
@@ -276,45 +276,47 @@ exports.login = async (req, res) => {
 
 // get all doctors
 exports.getAllDoctors = async (req, res) => {
-	try {
-		DoctorInfo.find()
-			.populate("userId")
-			.exec(function (err, users) {
-				const doctors = users.map((user) =>
-					Object.assign(user, { password: undefined })
-				);
-				res.status(200).json({
-					doctors,
-				});
-			});
-	} catch (err) {
-		console.log(err);
-		res.status(500).json({
-			error: err,
-		});
-	}
+  try {
+    const doctors = await DoctorInfo.find().populate("userId");
+
+    res.status(200).json({
+      result: doctors.map((item) => ({
+        _id: item.userId.id,
+        userInfo: Object.assign(item.userId, {
+          password: undefined,
+          _id: undefined,
+        }),
+        doctorInfo: Object.assign(item, { userId: undefined }),
+      })),
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err,
+    });
+  }
 };
 
 // // get doctor by id
 exports.getDoctorById = async (req, res) => {
-	try {
-		// get all doctors list
-		const user = await User.findById({ _id: req.params.id });
-		const doctorInfo = await DoctorInfo.findOne({ userId: req.params.id });
-		const d = Object.assign(user, { password: undefined });
-		const d1 = Object.assign(doctorInfo, { userId: undefined, _id: undefined });
+  try {
+    // get all doctors list
+    const user = await User.findById({ _id: req.params.id });
+    const doctorInfo = await DoctorInfo.findOne({ userId: req.params.id });
+    const d = Object.assign(user, { password: undefined });
+    const d1 = Object.assign(doctorInfo, { userId: undefined, _id: undefined });
 
-		const doctor = { ...d._doc, ...d1._doc };
+    const doctor = { ...d._doc, ...d1._doc };
 
-		res.status(200).json({
-			doctor,
-		});
-	} catch (err) {
-		console.log(err);
-		res.status(500).json({
-			error: err,
-		});
-	}
+    res.status(200).json({
+      doctor,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err,
+    });
+  }
 };
 
 // // get all patients by admin
