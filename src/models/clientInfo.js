@@ -10,10 +10,12 @@ const ClientInfo = mongoose.Schema(
 			type: String,
 		},
 		height: { type: String },
+
 		bloodType: {
 			type: String,
 			enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
 		},
+		isPregnant: { type: Boolean },
 		specialDiseases: [String],
 
 		currentMedications: [String],

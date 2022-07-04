@@ -9,6 +9,14 @@ const passport = require("passport");
 router.post("/login", UserController.login);
 
 router.post("/register-doctor", UserController.registerDoctor);
+router.post("/register-patient", UserController.registerPatient);
+
+// get all doctors
+router.get(
+	"/get-all-doctors",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getAllDoctors
+);
 
 // // Profile Routes
 // Get own user's profile
@@ -67,13 +75,6 @@ router.post("/register-doctor", UserController.registerDoctor);
 // 	passport.authenticate("jwt", { session: false }),
 // 	UserController.getPatientDoctors
 // );
-
-// get all doctors
-router.get(
-	"/get-all-doctors",
-	passport.authenticate("jwt", { session: false }),
-	UserController.getAllDoctors
-);
 
 // get doctor by id
 // router.get(
