@@ -17,43 +17,52 @@ router.get(
 	passport.authenticate("jwt", { session: false }),
 	UserController.getAllDoctors
 );
+// get all patient
+router.get(
+	"/get-all-patients",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getAllPatients
+);
 
-// // Profile Routes
-// Get own user's profile
-// router.get(
-// 	"/profile",
-// 	passport.authenticate("jwt", { session: false }),
-// 	UserController.getUserProfile
-// );
+// Update doctor
+router.patch(
+	"/update-doctor",
+	passport.authenticate("jwt", { session: false }),
+	UserController.updateDoctor
+);
+// Update patient
+router.patch(
+	"/update-patient",
+	passport.authenticate("jwt", { session: false }),
+	UserController.updatePatient
+);
 
-// Update profile
-// router.patch(
-// 	"/profile",
-// 	passport.authenticate("jwt", { session: false }),
-// 	UserController.updateUserProfile
-// );
+// get doctor by id
+router.get(
+	"/get-doctor/:id",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getDoctorById
+);
 
-// Update doctor's information
-// router.patch(
-// 	"/profile/doctor-info",
-// 	passport.authenticate("jwt", { session: false }),
-// 	UserController.updateDoctorInfo
-// );
+// get patient by id
+router.get(
+	"/get-patient/:id",
+	passport.authenticate("jwt", { session: false }),
+	UserController.getPatientById
+);
 
-// Update client's information
-// router.patch(
-// 	"/profile/client-info",
-// 	passport.authenticate("jwt", { session: false }),
-// 	UserController.updateClientInfo
-// );
+router.delete(
+	"/delete-doctor/:id",
+	passport.authenticate("jwt", { session: false }),
 
-// get all patients by admin
-// router.get(
-// 	"/get-all-patients",
-// 	passport.authenticate("jwt", { session: false }),
-// 	adminAuth,
-// 	UserController.getAllPatients
-// );
+	UserController.deleteDoctor
+);
+router.delete(
+	"/delete-patient/:id",
+	passport.authenticate("jwt", { session: false }),
+
+	UserController.deletePatient
+);
 
 // All Patients of specific doctor
 // router.get(
@@ -62,42 +71,11 @@ router.get(
 // 	UserController.getDoctorPatients
 // );
 
-// get patient by id
-// router.get(
-// 	"/get-patient/:id",
-// 	passport.authenticate("jwt", { session: false }),
-// 	UserController.getPatientById
-// );
-
 // All Doctors who are visited by a patient
 // router.get(
 // 	"/get-patient-doctors",
 // 	passport.authenticate("jwt", { session: false }),
 // 	UserController.getPatientDoctors
-// );
-
-// get doctor by id
-// router.get(
-// 	"/get-doctor/:id",
-// 	passport.authenticate("jwt", { session: false }),
-// 	UserController.getDoctorById
-// );
-
-// router.post(
-// 	"/add-user",
-// 	//This will check if the request has a JWT token and if the JWT token is valid
-// 	passport.authenticate("jwt", { session: false }),
-// 	adminAuth,
-// 	UserController.validate("addUser"),
-// 	errorInvalid,
-// 	UserController.addUser
-// );
-
-// router.delete(
-// 	"/delete-user/:id",
-// 	passport.authenticate("jwt", { session: false }),
-// 	adminAuth,
-// 	UserController.deleteUser
 // );
 
 module.exports = router;

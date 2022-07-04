@@ -8,6 +8,7 @@ const User = require("../models/user");
 const Appointment = require("../models/appointment");
 const DoctorInfo = require("../models/doctorInfo");
 const ClientInfo = require("../models/clientInfo");
+const clientInfo = require("../models/clientInfo");
 
 exports.registerDoctor = async (req, res) => {
 	try {
@@ -189,99 +190,176 @@ exports.registerPatient = async (req, res) => {
 	}
 };
 
-// exports.getUserProfile = async (req, res) => {
-// 	try {
-// 		const inf =
-// 			req.user.type === 1
-// 				? await DoctorInfo.find({ userId: req.user._id })
-// 				: await ClientInfo.find({ userId: req.user._id });
+exports.updateDoctor = async (req, res) => {
+	try {
+		// Unrequire list of fields if not provided
+		const unrequiredFields = ["username", "type", "medicalCode"];
+		unrequiredFields.forEach((field) => {
+			if (req.body[field]) {
+				req.body[field] = req.user[field];
+			}
+		});
 
-// 		console.log(req.user._id);
-// 		res.status(200).json({
-// 			result: {
-// 				user: Object.assign(req.user, { password: undefined }),
-// 				info: inf,
-// 			},
-// 		});
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
+		const user = await User.findById(req.user._id);
+		Object.keys(user._doc).forEach((prop) => {
+			if (req.body[prop]) {
+				user._doc[prop] = req.body[prop];
+			}
+		});
+		const userChanged = await user.save();
 
-// exports.updateUserProfile = async (req, res) => {
-// 	try {
-// 		console.log(req.user);
-// 		// Unrequire list of fields if not provided
-// 		const unrequiredFields = [
-// 			"username",
-// 			"isAdmin",
-// 			"createdAt",
-// 			"type",
-// 			"sex",
-// 			"dateOfBirth",
-// 		];
-// 		unrequiredFields.forEach((field) => {
-// 			if (!req.body[field]) {
-// 				req.body[field] = req.user[field];
-// 			}
-// 		});
-// 		Object.keys(req.body).forEach((field) => {
-// 			req.user[field] = req.body[field];
-// 		});
+		const doctorInfo = await DoctorInfo.findOne({ userId: req.user._id });
+		Object.keys(doctorInfo._doc).forEach((prop) => {
+			if (req.body[prop]) {
+				doctorInfo._doc[prop] = req.body[prop];
+			}
+		});
+		const doctorInfoChanged = await doctorInfo.save();
+		if (userChanged || doctorInfoChanged) {
+			res.status(201).json({
+				message: "تغییرات با موفقییت ثبت شد.",
+				userInfo: Object.assign(userChanged, { password: undefined }),
+				doctorInfo: doctorInfoChanged,
+			});
+		}
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
 
-// 		await req.user.save();
+exports.updatePatient = async (req, res) => {
+	try {
+		// Unrequire list of fields if not provided
+		const unrequiredFields = ["username", "type"];
+		unrequiredFields.forEach((field) => {
+			if (req.body[field]) {
+				req.body[field] = req.user[field];
+			}
+		});
 
-// 		res.status(201).json({
-// 			message: "تغییرات با موفقیت اعمال شد.",
-// 		});
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
+		const user = await User.findById(req.user._id);
+		Object.keys(user._doc).forEach((prop) => {
+			if (req.body[prop]) {
+				user._doc[prop] = req.body[prop];
+			}
+		});
+		const userChanged = await user.save();
 
-// // update doctor's information
-// exports.updateDoctorInfo = async (req, res) => {
-// 	try {
-// 		const doctor = await DoctorInfo.findOne({ userId: req.user._id });
-// 		Object.keys(req.body).forEach((field) => {
-// 			doctor[field] = req.body[field];
-// 		});
-// 		await doctor.save();
-// 		res.status(201).json({
-// 			message: "تغییرات با موفقیت اعمال شد.",
-// 		});
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
+		const patientInfo = await ClientInfo.findOne({ userId: req.user._id });
+		Object.keys(patientInfo._doc).forEach((prop) => {
+			if (req.body[prop]) {
+				patientInfo._doc[prop] = req.body[prop];
+			}
+		});
+		const patientInfoChanged = await patientInfo.save();
 
-// // update patient's information
-// exports.updateClientInfo = async (req, res) => {
-// 	try {
-// 		const patient = await ClientInfo.findOne({ userId: req.user._id });
-// 		Object.keys(req.body).forEach((field) => {
-// 			patient[field] = req.body[field];
-// 		});
-// 		await patient.save();
-// 		res.status(201).json({
-// 			message: "تغییرات با موفقیت اعمال شد.",
-// 		});
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
+		if (userChanged || patientInfoChanged) {
+			res.status(201).json({
+				message: "تغییرات با موفقییت ثبت شد.",
+				userInfo: Object.assign(userChanged, { password: undefined }),
+				patientInfo: Object.assign(patientInfoChanged, { userId: undefined }),
+			});
+		}
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// get all doctors
+exports.getAllDoctors = async (req, res) => {
+	try {
+		const doctors = await DoctorInfo.find().populate("userId");
+
+		res.status(200).json({
+			result: doctors.map((item) => ({
+				_id: item.userId.id,
+				userInfo: Object.assign(item.userId, {
+					password: undefined,
+					_id: undefined,
+				}),
+				doctorInfo: Object.assign(item, { userId: undefined }),
+			})),
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// // get doctor by id
+exports.getDoctorById = async (req, res) => {
+	try {
+		// get all doctors list
+		const user = await User.findById({ _id: req.params.id });
+		const doctorInfo = await DoctorInfo.findOne({ userId: req.params.id });
+		const d = Object.assign(user, { password: undefined });
+		const d1 = Object.assign(doctorInfo, { _id: undefined });
+
+		const doctor = { ...d._doc, ...d1._doc };
+
+		res.status(200).json({
+			doctor,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// // get all patients
+exports.getAllPatients = async (req, res) => {
+	try {
+		const patients = await ClientInfo.find().populate("userId");
+		res.status(200).json({
+			result: patients.map((item) => ({
+				_id: item.userId.id,
+				userInfo: Object.assign(item.userId, {
+					password: undefined,
+					_id: undefined,
+				}),
+				patientInfo: Object.assign(item, { userId: undefined }),
+			})),
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
+
+// // get patient by id
+exports.getPatientById = async (req, res) => {
+	try {
+		const user = await User.findById({ _id: req.params.id });
+		const patientInfo = await ClientInfo.findOne({ userId: req.params.id });
+		const d = Object.assign(user, { password: undefined });
+		const d1 = Object.assign(patientInfo, {
+			_id: undefined,
+		});
+
+		const patient = { ...d._doc, ...d1._doc };
+
+		res.status(200).json({
+			patient,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			error: err,
+		});
+	}
+};
 
 // // // GET Patient(s) Routes
 // // All Patients of especific doctor
@@ -351,20 +429,21 @@ exports.registerPatient = async (req, res) => {
 // 	}
 // };
 
-// get all doctors
-exports.getAllDoctors = async (req, res) => {
+// // delete doctor
+exports.deleteDoctor = async (req, res) => {
 	try {
-		const doctors = await DoctorInfo.find().populate("userId");
+		const id = req.params.id;
+		const findUser = await User.findById(id);
+		if (!findUser) {
+			res.status(400).json({ message: "کاربر یافت نشد" });
+			return;
+		}
+
+		await findUser.delete();
+		await DoctorInfo.deleteOne({ userId: findUser._id });
 
 		res.status(200).json({
-			result: doctors.map((item) => ({
-				_id: item.userId.id,
-				userInfo: Object.assign(item.userId, {
-					password: undefined,
-					_id: undefined,
-				}),
-				doctorInfo: Object.assign(item, { userId: undefined }),
-			})),
+			message: "کاربر با موفقیت حذف شد",
 		});
 	} catch (err) {
 		console.log(err);
@@ -373,20 +452,21 @@ exports.getAllDoctors = async (req, res) => {
 		});
 	}
 };
-
-// // get doctor by id
-exports.getDoctorById = async (req, res) => {
+// // delete patient
+exports.deletePatient = async (req, res) => {
 	try {
-		// get all doctors list
-		const user = await User.findById({ _id: req.params.id });
-		const doctorInfo = await DoctorInfo.findOne({ userId: req.params.id });
-		const d = Object.assign(user, { password: undefined });
-		const d1 = Object.assign(doctorInfo, { userId: undefined, _id: undefined });
+		const id = req.params.id;
+		const findUser = await User.findById(id);
+		if (!findUser) {
+			res.status(400).json({ message: "کاربر یافت نشد" });
+			return;
+		}
 
-		const doctor = { ...d._doc, ...d1._doc };
+		await findUser.delete();
+		await ClientInfo.deleteOne({ userId: findUser._id });
 
 		res.status(200).json({
-			doctor,
+			message: "کاربر با موفقیت حذف شد",
 		});
 	} catch (err) {
 		console.log(err);
@@ -395,164 +475,6 @@ exports.getDoctorById = async (req, res) => {
 		});
 	}
 };
-
-// // get all patients by admin
-// exports.getAllPatients = async (req, res) => {
-// 	try {
-// 		// get all patients list
-// 		const allUsers = await User.find({ type: 2 });
-
-// 		// remove password in response
-// 		const result = allUsers.map((user) =>
-// 			Object.assign(user, { password: undefined })
-// 		);
-
-// 		res.status(200).json({
-// 			result: result,
-// 		});
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
-
-// // get patient by id
-// exports.getPatientById = async (req, res) => {
-// 	try {
-// 		const user = await User.findById({ _id: req.params.id });
-// 		const patientInfo = await ClientInfo.findOne({ userId: req.params.id });
-// 		const d = Object.assign(user, { password: undefined });
-// 		const d1 = Object.assign(patientInfo, {
-// 			userId: undefined,
-// 			_id: undefined,
-// 		});
-
-// 		const patient = { ...d._doc, ...d1._doc };
-
-// 		res.status(200).json({
-// 			patient,
-// 		});
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
-// // add new patient or doctor by admin
-// exports.addUser = async (req, res) => {
-// 	try {
-// 		let info;
-// 		const {
-// 			username,
-// 			password,
-// 			type,
-// 			firstName,
-// 			lastName,
-// 			profileImage,
-// 			sex,
-// 			dateOfBirth,
-// 			phoneNumber,
-// 			address,
-// 			doctorInfo,
-// 			clientInfo,
-// 		} = req.body;
-// 		const findUser = await User.findOne({ username });
-// 		const salt = bcrypt.genSaltSync(10);
-// 		const hashedPassword = bcrypt.hashSync(password, salt);
-
-// 		if (findUser) {
-// 			res.status(400).json({ message: "این نام کاربری قبلا ثبت شده است." });
-// 			return;
-// 		}
-// 		//save new user
-// 		const newUser = new User({
-// 			_id: new mongoose.Types.ObjectId(),
-// 			username,
-// 			password: hashedPassword,
-// 			isAdmin: false,
-// 			createdAt: new Date().toISOString(),
-// 			firstName,
-// 			lastName,
-// 			type,
-// 			profileImage,
-// 			sex,
-// 			dateOfBirth,
-// 			phoneNumber,
-// 			address,
-// 		});
-
-// 		//saving the user in database
-// 		const result = await newUser.save();
-// 		// Protect from malicious account information assignment
-// 		if (type == 1) {
-// 			const newDoctor = new DoctorInfo({
-// 				_id: new mongoose.Types.ObjectId(),
-// 				userId: newUser._id,
-// 				...doctorInfo,
-// 			});
-
-// 			// saving doctor's info in database
-// 			info = await newDoctor.save();
-// 			console.log(await newDoctor.save());
-// 		} else {
-// 			const newPatient = new ClientInfo({
-// 				_id: new mongoose.Types.ObjectId(),
-// 				userId: newUser._id,
-// 				...clientInfo,
-// 			});
-
-// 			// saving patient's info in database
-// 			info = await newPatient.save();
-// 		}
-
-// 		if (result && info) {
-// 			res.status(201).json({
-// 				message: "کاربر جدید با موفقیت ثبت شد",
-// 				result: {
-// 					user: Object.assign(result, { password: undefined }),
-// 					Info: info,
-// 				},
-// 			});
-// 			return;
-// 		}
-
-// 		throw new Error("خطایی رخ داد");
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
-
-// // delete user by admin
-// exports.deleteUser = async (req, res) => {
-// 	try {
-// 		const id = req.params.id;
-// 		const findUser = await User.findById(id);
-// 		if (!findUser) {
-// 			res.status(400).json({ message: "کاربر یافت نشد" });
-// 			return;
-// 		}
-// 		if (findUser.isAdmin) {
-// 			res.status(400).json({ message: " کاربر ادمین را نمیتوان حذف کرد " });
-// 			return;
-// 		}
-// 		await findUser.delete();
-
-// 		res.status(200).json({
-// 			message: "کاربر با موفقیت حذف شد",
-// 		});
-// 	} catch (err) {
-// 		console.log(err);
-// 		res.status(500).json({
-// 			error: err,
-// 		});
-// 	}
-// };
 
 // exports.validate = (method) => {
 // 	switch (method) {
